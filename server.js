@@ -2,7 +2,7 @@
 var express = require("express");
 const fs = require("fs");
 var path = require("path");
-var newArray = [];
+
 var app = express();
 
 
@@ -48,18 +48,16 @@ app.post("/api/notes", function (req, res) {
             throw err;
         }
         const newnote = JSON.parse(data);
-        req.body.id = newnote.length;
+        req.body.id = Date.now();
         newnote.push(req.body);
         console.log(newnote);
         fs.writeFile("./db/db.json", JSON.stringify(newnote), (err) => {
             if (err) {
                 throw err;
             }
-            res.json({
-                data: newnote
-            })
+            res.json(newnote);
         });
-        
+
     });
 });
 
@@ -68,42 +66,40 @@ app.post("/api/notes", function (req, res) {
 
 app.delete("/api/notes/:id", function (req, res) {
     var paramsID = parseInt(req.params.id);
-    // paramsID = paramsID.toString();
-    console.log(paramsID);
-    // var newArray = [];
+    var newArray = [];
+
+    console.log("70 " + JSON.stringify(paramsID));
+
     fs.readFile("./db/db.json", "utf8", (err, data) => {
         if (err) {
             throw err;
         }
         var currentData = JSON.parse(data);
-        
-        // req.body.id = newNote.length;
-        // newNote.push(req.body);
-        // console.log(newNote);
-        for (i = 0; i < currentData.length; i++) {
-            // console.log(newNote[i]);
-            if (paramsID === currentData[i].id) {
-                console.log("found it");
-                // i = newNote.length;
-            }
-            else {
-                newArray.push(currentData[i]);
-                console.log(newArray);
-                fs.writeFile("./db/db.json", JSON.stringify(newArray), (err) => {
-                    if (err){
-                        throw err;
-                    }
-                    
-                    console.log(newArray);
-                    res.json(true);
-                });
-               
-               
-            }
-    
-        }
 
+
+        for (i = 0; i < currentData.length; i++) {
+            
+            if (paramsID !== currentData[i].id) {
+                console.log("found it");
+                newArray.push(currentData[i]);
+            }
+
+
+
+
+
+
+
+        }
+        console.log("87 " + JSON.stringify(newArray));
+        fs.writeFile("./db/db.json", JSON.stringify(newArray), (err) => {
+            if (err) throw err;
+
+
+            console.log("92 " + JSON.stringify(newArray));
+            res.sendFile(path.join(__dirname, "./db/db.json"));
+        });
     });
 
-    
+
 });
